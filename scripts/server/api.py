@@ -19,13 +19,26 @@ from drqa.retriever import utils
 # Server code
 from flask import Flask
 from flask_restful import Resource, Api
+from json import dumps
+from flask_jsonpify import jsonify
 
 app = Flask(__name__)
 api = Api(app)
 
 class Question(Resource):
     def get(self, question_string):
-        return process(' '.join(question_string.split('%20')))
+        process_result = process(' '.join(question_string.split('%20')), None, 5)
+        # for p in process_result:
+        #     text = p['context']['text']
+        #     start = p['context']['start']
+        #     end = p['context']['end']
+        #     output = (text[:start] +
+        #               colored(text[start: end], 'green', attrs=['bold']) +
+        #               text[end:])
+        #     print('[ Doc = %s ]' % p['doc_id'])
+        #     print(output + '\n')
+        result = {'data': [dict(zip(range(1,len(process_result)+1),[p['context']['text'] for p in process_result])) ]}
+        return jsonify(result)
 
 api.add_resource(Question, '/question/<question_string>')
 
@@ -114,6 +127,7 @@ def process(question, candidates=None, top_n=1, n_docs=5):
                   text[end:])
         print('[ Doc = %s ]' % p['doc_id'])
         print(output + '\n')
+    return predictions
 
 
 banner = """
