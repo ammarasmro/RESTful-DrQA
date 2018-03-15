@@ -97,9 +97,8 @@ DrQA = pipeline.DrQA(
 
 
 # ------------------------------------------------------------------------------
-# Drop in to interactive mode
+# Processing
 # ------------------------------------------------------------------------------
-
 
 def process(question, candidates=None, top_n=1, n_docs=5):
     t0 = time.time()
@@ -127,25 +126,6 @@ def process(question, candidates=None, top_n=1, n_docs=5):
         print(output + '\n')
     print('Time: %.4f' % (time.time() - t0))
     return predictions
-
-
-banner = """
-Interactive DrQA
->> process(question, candidates=None, top_n=1, n_docs=5)
->> usage()
-"""
-
-
-def usage():
-    print(banner)
-
-
-# code.interact(banner=banner, local=locals())
-# if __name__ == '__main__':
-#     import timeit
-#     print(timeit.timeit('process("How to design a car?", None, 5)', number=1, setup="from __main__ import process"))
-
-# process('which programming languages can be used to make an Android application?', None, 5)
 
 if __name__ == '__main__':
     app.run(debug=True)
