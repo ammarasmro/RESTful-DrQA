@@ -11,6 +11,7 @@ import argparse
 import code
 import prettytable
 import logging
+import time
 
 from termcolor import colored
 from drqa import pipeline
@@ -101,6 +102,7 @@ DrQA = pipeline.DrQA(
 
 
 def process(question, candidates=None, top_n=1, n_docs=5):
+    t0 = time.time()
     predictions = DrQA.process(
         question, candidates, top_n, n_docs, return_context=True
     )
@@ -123,6 +125,7 @@ def process(question, candidates=None, top_n=1, n_docs=5):
                   text[end:])
         print('[ Doc = %s ]' % p['doc_id'])
         print(output + '\n')
+    print('Time: %.4f' % (time.time() - t0))
     return predictions
 
 
@@ -138,6 +141,10 @@ def usage():
 
 
 # code.interact(banner=banner, local=locals())
+# if __name__ == '__main__':
+#     import timeit
+#     print(timeit.timeit('process("How to design a car?", None, 5)', number=1, setup="from __main__ import process"))
+
 # process('which programming languages can be used to make an Android application?', None, 5)
 
 if __name__ == '__main__':
