@@ -13,6 +13,14 @@ I'm using Flask to add the API features. For now, I will only use the GET functi
 - [ ] Store results on a database
 - [ ] Try other models and tokenizers
 
+### Challenges
+The speed of the reader will slow the response of the chatbot
+
+Section | Time(s)
+---|---
+Pipeline | 19.011763036018237
+retriever| 0.06537262897472829
+reader (1k-100k characters) | 0.406 - 42.7445
 
 ---
 The text below this line is from DrQA's original README
