@@ -1,3 +1,24 @@
+# RESTful DrQA
+This is an attempt to turn DrQA Wikipedia question answering system, that was built by FB, to a REST API.
+
+## Purpose
+I'm trying to integrate it to a chatbot project that I'm working on right now.
+
+## Methodology
+I'm using Flask to add the API features. For now, I will only use the GET functionality. The results are turned into JSON to make them more useful for other projects.
+
+## Plans
+- [x] Add GET functionality
+- [ ] Optimize the speed
+- [ ] Store results on a database
+- [ ] Try other models and tokenizers
+
+
+---
+The text below this line is from DrQA's original README
+
+---
+
 # DrQA
 This is a PyTorch implementation of the DrQA system described in the ACL 2017 paper [Reading Wikipedia to Answer Open-Domain Questions](https://arxiv.org/abs/1704.00051).
 
