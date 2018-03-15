@@ -61,6 +61,8 @@ parser.add_argument('--no-cuda', action='store_true',
                     help="Use CPU only")
 parser.add_argument('--gpu', type=int, default=-1,
                     help="Specify GPU device id to use")
+parser.add_argument('--num_workers', type=int, default=None,
+                    help="Specify number of CPU workers")
 args = parser.parse_args()
 
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -88,7 +90,8 @@ DrQA = pipeline.DrQA(
     reader_model=args.reader_model,
     ranker_config={'options': {'tfidf_path': args.retriever_model}},
     db_config={'options': {'db_path': args.doc_db}},
-    tokenizer=args.tokenizer
+    tokenizer=args.tokenizer,
+    num_workers = args.num_workers
 )
 
 
