@@ -27,17 +27,10 @@ api = Api(app)
 
 class Question(Resource):
     def get(self, question_string):
-        process_result = process(' '.join(question_string.split('%20')), None, 5)
-        # for p in process_result:
-        #     text = p['context']['text']
-        #     start = p['context']['start']
-        #     end = p['context']['end']
-        #     output = (text[:start] +
-        #               colored(text[start: end], 'green', attrs=['bold']) +
-        #               text[end:])
-        #     print('[ Doc = %s ]' % p['doc_id'])
-        #     print(output + '\n')
-        result = {'data': [dict(zip(range(1,len(process_result)+1),[p['context']['text'] for p in process_result])) ]}
+        query = ' '.join(question_string.split('%20'))
+        if query[len(query)-1] != '?': query += '?'
+        process_result = process(query, None, 5)
+        result = {'query': query,'results': [dict(zip(["result_number","doc_id","span","span_score","doc_score","context"],[i,p["doc_id"],p["span"],p["span_score"],p["doc_score"],p['context']['text']])) for i,p in enumerate(process_result) ]}
         return jsonify(result)
 
 api.add_resource(Question, '/question/<question_string>')
