@@ -11,6 +11,7 @@ import argparse
 import code
 import prettytable
 import logging
+import time
 
 from termcolor import colored
 from drqa import pipeline
@@ -61,6 +62,8 @@ parser.add_argument('--no-cuda', action='store_true',
                     help="Use CPU only")
 parser.add_argument('--gpu', type=int, default=-1,
                     help="Specify GPU device id to use")
+parser.add_argument('--num_workers', type=int, default=None,
+                    help="Specify number of CPU workers")
 args = parser.parse_args()
 
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -88,16 +91,17 @@ DrQA = pipeline.DrQA(
     reader_model=args.reader_model,
     ranker_config={'options': {'tfidf_path': args.retriever_model}},
     db_config={'options': {'db_path': args.doc_db}},
-    tokenizer=args.tokenizer
+    tokenizer=args.tokenizer,
+    num_workers = args.num_workers
 )
 
 
 # ------------------------------------------------------------------------------
-# Drop in to interactive mode
+# Processing
 # ------------------------------------------------------------------------------
 
-
 def process(question, candidates=None, top_n=1, n_docs=5):
+    t0 = time.time()
     predictions = DrQA.process(
         question, candidates, top_n, n_docs, return_context=True
     )
@@ -120,22 +124,8 @@ def process(question, candidates=None, top_n=1, n_docs=5):
                   text[end:])
         print('[ Doc = %s ]' % p['doc_id'])
         print(output + '\n')
+    print('Time: %.4f' % (time.time() - t0))
     return predictions
-
-
-banner = """
-Interactive DrQA
->> process(question, candidates=None, top_n=1, n_docs=5)
->> usage()
-"""
-
-
-def usage():
-    print(banner)
-
-
-# code.interact(banner=banner, local=locals())
-# process('which programming languages can be used to make an Android application?', None, 5)
 
 if __name__ == '__main__':
     app.run(debug=True)
