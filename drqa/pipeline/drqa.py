@@ -179,11 +179,11 @@ class DrQA(object):
     def process(self, query, candidates=None, top_n=1, n_docs=5,
                 return_context=False):
         """Run a single query."""
-        predictions = self.process_batch(
+        predictions, texts = self.process_batch(
             [query], [candidates] if candidates else None,
             top_n, n_docs, return_context
         )
-        return predictions[0]
+        return predictions[0], texts
 
     def process_batch(self, queries, candidates=None, top_n=1, n_docs=5,
                       return_context=False):
@@ -303,4 +303,4 @@ class DrQA(object):
         logger.info('Processed %d queries in %.4f (s)' %
                     (len(queries), time.time() - t0))
 
-        return all_predictions
+        return all_predictions, doc_texts

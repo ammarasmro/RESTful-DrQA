@@ -13,6 +13,34 @@ I'm using Flask to add the API features. For now, I will only use the GET functi
 - [ ] Store results on a database
 - [ ] Try other models and tokenizers
 
+## Setup
+```bash
+git clone https://github.com/facebookresearch/DrQA.git
+cd DrQA; pip3 install -r requirements.txt; python3 setup.py develop
+
+./install_corenlp.sh
+
+for d in /Users/ammarasmro/GitHub/RESTful-DrQA/data/corenlp/*;do export CLASSPATH=$CLASSPATH:$d;done;
+
+
+./download.sh
+python scripts/retriever/interactive.py --model /path/to/model
+python scripts/reader/interactive.py --model /path/to/model
+python scripts/pipeline/interactive.py
+```
+
+Then, add this to .bashrc
+```bash
+export CLASSPATH=$CLASSPATH:/Users/ammarasmro/GitHub/RESTful-DrQA/data/corenlp/*
+
+```
+
+
+## New usage:
+```bash
+python3 scripts/server/api.py --num_workers=2
+```
+
 
 ---
 The text below this line is from DrQA's original README
