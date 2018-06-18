@@ -50,7 +50,9 @@ class Docs(Resource):
         query_result = retrieve_closest_docs(query, int(n_docs))
         # result = {'query': query,'results': [dict(zip(["result_number","doc_id","span","span_score","doc_score","context"],[i,p["doc_id"],p["span"],p["span_score"],p["doc_score"],p['context']['text']])) for i,p in enumerate(process_result) ]}
         # result = [dict(zip(["result_number","doc_id","span","span_score","doc_score","context"],[i,p["doc_id"],p["span"],p["span_score"],p["doc_score"],p['context']['text']])) for i,p in enumerate(process_result) ]
-        js = jsonify(query_result)
+        # result = [{x:y} for x,y in query_result.items()]
+        result = [dict(zip(['title', 'content'], [x, query_result[x]])) for x in query_result]
+        js = jsonify(result)
         # js = Response(js, status=200, mimetype='application/json')
         js.headers['Access-Control-Allow-Origin'] = '*'
         return js
@@ -163,7 +165,7 @@ def retrieve_closest_docs(query, k):
     for doc in retrieved_docs[0]:
         if doc not in visited:
             visited.add(doc)
-            directory[doc] = doc_client.get_doc_text(doc)
+            directory[doc] = ' '.join(doc_client.get_doc_text(doc).replace('\n',' ').replace('\"', '"').split())
     return directory
 
 if __name__ == '__main__':
