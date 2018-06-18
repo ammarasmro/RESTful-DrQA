@@ -13,6 +13,36 @@ I'm using Flask to add the API features. For now, I will only use the GET functi
 - [ ] Store results on a database
 - [ ] Try other models and tokenizers
 
+
+## Setup
+```bash
+git clone https://github.com/facebookresearch/DrQA.git
+cd DrQA; pip3 install -r requirements.txt; python3 setup.py develop
+
+./install_corenlp.sh
+
+for d in /Users/ammarasmro/GitHub/RESTful-DrQA/data/corenlp/*;do export CLASSPATH=$CLASSPATH:$d;done;
+
+
+./download.sh
+python scripts/retriever/interactive.py --model /path/to/model
+python scripts/reader/interactive.py --model /path/to/model
+python scripts/pipeline/interactive.py
+```
+
+Then, add this to .bashrc
+```bash
+export CLASSPATH=$CLASSPATH:/Users/ammarasmro/GitHub/RESTful-DrQA/data/corenlp/*
+
+```
+
+
+## New usage:
+```bash
+python3 scripts/server/api.py --num_workers=2
+```
+
+=======
 ### Challenges
 The speed of the reader will slow the response of the chatbot
 
@@ -21,6 +51,7 @@ Section | Time(s)
 Pipeline | 19.011763036018237
 retriever| 0.06537262897472829
 reader (1k-100k characters) | 0.406 - 42.7445
+
 
 ---
 The text below this line is from DrQA's original README

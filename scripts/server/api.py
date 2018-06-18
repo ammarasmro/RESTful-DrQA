@@ -16,12 +16,17 @@ import time
 from termcolor import colored
 from drqa import pipeline
 from drqa.retriever import utils
+import drqa
+
+# Extra
+from drqa.retriever import DocDB
+from drqa.retriever import TfidfDocRanker
 
 # Server code
-from flask import Flask
+from flask import Flask, Response, jsonify
 from flask_restful import Resource, Api
 from json import dumps
-from flask_jsonpify import jsonify
+# from flask_jsonpify import jsonify
 
 app = Flask(__name__)
 api = Api(app)
@@ -31,10 +36,29 @@ class Question(Resource):
         query = ' '.join(question_string.split('%20'))
         if query[len(query)-1] != '?': query += '?'
         process_result = process(query, None, 5)
-        result = {'query': query,'results': [dict(zip(["result_number","doc_id","span","span_score","doc_score","context"],[i,p["doc_id"],p["span"],p["span_score"],p["doc_score"],p['context']['text']])) for i,p in enumerate(process_result) ]}
-        return jsonify(result)
+        # result = {'query': query,'results': [dict(zip(["result_number","doc_id","span","span_score","doc_score","context"],[i,p["doc_id"],p["span"],p["span_score"],p["doc_score"],p['context']['text']])) for i,p in enumerate(process_result) ]}
+        result = [dict(zip(["result_number","doc_id","span","span_score","doc_score","context"],[i,p["doc_id"],p["span"],p["span_score"],p["doc_score"],p['context']['text']])) for i,p in enumerate(process_result) ]
+        js = jsonify(result)
+        # js = Response(js, status=200, mimetype='application/json')
+        js.headers['Access-Control-Allow-Origin'] = '*'
+        return js
 
-api.add_resource(Question, '/question/<question_string>')
+class Docs(Resource):
+    def get(self, doc_query, n_docs):
+        query = ' '.join(doc_query.split('%20'))
+        if query[len(query)-1] != '?': query += '?'
+        query_result = retrieve_closest_docs(query, int(n_docs))
+        # result = {'query': query,'results': [dict(zip(["result_number","doc_id","span","span_score","doc_score","context"],[i,p["doc_id"],p["span"],p["span_score"],p["doc_score"],p['context']['text']])) for i,p in enumerate(process_result) ]}
+        # result = [dict(zip(["result_number","doc_id","span","span_score","doc_score","context"],[i,p["doc_id"],p["span"],p["span_score"],p["doc_score"],p['context']['text']])) for i,p in enumerate(process_result) ]
+        # result = [{x:y} for x,y in query_result.items()]
+        result = [dict(zip(['title', 'content'], [x, query_result[x]])) for x in query_result]
+        js = jsonify(result)
+        # js = Response(js, status=200, mimetype='application/json')
+        js.headers['Access-Control-Allow-Origin'] = '*'
+        return js
+
+api.add_resource(Question, '/question/<question_string>/')
+api.add_resource(Docs, '/docs/<doc_query>/<n_docs>/')
 
 # -----------------------------------------
 
@@ -95,6 +119,11 @@ DrQA = pipeline.DrQA(
     num_workers = args.num_workers
 )
 
+## Retriever
+doc_ranker = TfidfDocRanker()
+
+# DB client
+doc_client = DocDB()
 
 # ------------------------------------------------------------------------------
 # Processing
@@ -102,7 +131,7 @@ DrQA = pipeline.DrQA(
 
 def process(question, candidates=None, top_n=1, n_docs=5):
     t0 = time.time()
-    predictions = DrQA.process(
+    predictions, doc_texts = DrQA.process(
         question, candidates, top_n, n_docs, return_context=True
     )
     table = prettytable.PrettyTable(
@@ -125,7 +154,19 @@ def process(question, candidates=None, top_n=1, n_docs=5):
         print('[ Doc = %s ]' % p['doc_id'])
         print(output + '\n')
     print('Time: %.4f' % (time.time() - t0))
+    print('Real texts %s' % doc_texts)
     return predictions
+
+## Retrieving function
+def retrieve_closest_docs(query, k):
+    retrieved_docs = doc_ranker.closest_docs(query, k)
+    visited = set()
+    directory = dict()
+    for doc in retrieved_docs[0]:
+        if doc not in visited:
+            visited.add(doc)
+            directory[doc] = ' '.join(doc_client.get_doc_text(doc).replace('\n',' ').replace('\"', '"').split())
+    return directory
 
 if __name__ == '__main__':
     app.run(debug=True)
