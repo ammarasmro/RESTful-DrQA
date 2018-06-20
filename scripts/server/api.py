@@ -16,11 +16,11 @@ import time
 from termcolor import colored
 from drqa import pipeline
 from drqa.retriever import utils
-import drqa
+#import drqa
 
 # Extra
 from drqa.retriever import DocDB
-from drqa.retriever import TfidfDocRanker
+#from drqa.retriever import TfidfDocRanker
 
 # Server code
 from flask import Flask, Response, jsonify
@@ -120,7 +120,7 @@ DrQA = pipeline.DrQA(
 )
 
 ## Retriever
-doc_ranker = TfidfDocRanker()
+#doc_ranker = TfidfDocRanker()
 
 # DB client
 doc_client = DocDB()
@@ -159,7 +159,7 @@ def process(question, candidates=None, top_n=1, n_docs=5):
 
 ## Retrieving function
 def retrieve_closest_docs(query, k):
-    retrieved_docs = doc_ranker.closest_docs(query, k)
+    retrieved_docs = DrQA.ranker.closest_docs(query, k)
     visited = set()
     directory = dict()
     for doc in retrieved_docs[0]:
@@ -169,4 +169,4 @@ def retrieve_closest_docs(query, k):
     return directory
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', use_reloader=False)
