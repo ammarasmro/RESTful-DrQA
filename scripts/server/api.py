@@ -165,7 +165,7 @@ def retrieve_closest_docs(query, k):
     for doc in retrieved_docs[0]:
         if doc not in visited:
             visited.add(doc)
-            directory[doc] = ' '.join(doc_client.get_doc_text(doc).replace('\n',' ').replace('\"', '"').split())
+            directory[doc] = doc_client.get_doc_text(doc)
     return directory
 
 if __name__ == '__main__':
